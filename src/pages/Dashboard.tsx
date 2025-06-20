@@ -4,64 +4,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  Title, 
-  Tooltip, 
-  Legend,
-  ArcElement
-} from 'chart.js';
-import { Line, Doughnut } from 'react-chartjs-2';
 import { Brain, BookOpen, Code, Trophy, TrendingUp, Target, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
 
-  const progressData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Learning Progress',
-        data: [12, 19, 25, 32, 45, 60],
-        borderColor: 'rgb(147, 51, 234)',
-        backgroundColor: 'rgba(147, 51, 234, 0.1)',
-        tension: 0.4,
-      },
-    ],
-  };
+  const progressData = [
+    { month: 'Jan', progress: 12 },
+    { month: 'Feb', progress: 19 },
+    { month: 'Mar', progress: 25 },
+    { month: 'Apr', progress: 32 },
+    { month: 'May', progress: 45 },
+    { month: 'Jun', progress: 60 },
+  ];
 
-  const skillsData = {
-    labels: ['AI Fundamentals', 'Machine Learning', 'Deep Learning', 'Computer Vision', 'NLP'],
-    datasets: [
-      {
-        data: [85, 70, 60, 45, 30],
-        backgroundColor: [
-          'rgba(147, 51, 234, 0.8)',
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(16, 185, 129, 0.8)',
-          'rgba(245, 158, 11, 0.8)',
-          'rgba(239, 68, 68, 0.8)',
-        ],
-        borderWidth: 0,
-      },
-    ],
-  };
+  const skillsData = [
+    { name: 'AI Fundamentals', value: 85, color: '#9333ea' },
+    { name: 'Machine Learning', value: 70, color: '#3b82f6' },
+    { name: 'Deep Learning', value: 60, color: '#10b981' },
+    { name: 'Computer Vision', value: 45, color: '#f59e0b' },
+    { name: 'NLP', value: 30, color: '#ef4444' },
+  ];
 
   const stats = [
     { title: 'Courses Completed', value: '8', total: '15', icon: BookOpen, color: 'from-green-500 to-emerald-500', progress: 53 },
@@ -130,38 +95,30 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="h-64">
-                <Line 
-                  data={progressData} 
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        labels: {
-                          color: 'white'
-                        }
-                      }
-                    },
-                    scales: {
-                      x: {
-                        ticks: {
-                          color: 'rgba(255, 255, 255, 0.7)'
-                        },
-                        grid: {
-                          color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                      },
-                      y: {
-                        ticks: {
-                          color: 'rgba(255, 255, 255, 0.7)'
-                        },
-                        grid: {
-                          color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                      }
-                    }
-                  }}
-                />
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={progressData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="month" stroke="rgba(255,255,255,0.7)" />
+                    <YAxis stroke="rgba(255,255,255,0.7)" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(0,0,0,0.8)', 
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '8px',
+                        color: 'white'
+                      }} 
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="progress" 
+                      stroke="#9333ea" 
+                      strokeWidth={3}
+                      dot={{ fill: '#9333ea', strokeWidth: 2, r: 6 }}
+                      name="Learning Progress"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
@@ -179,25 +136,32 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="h-64">
-                <Doughnut 
-                  data={skillsData} 
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
-                        labels: {
-                          color: 'white',
-                          padding: 15,
-                          font: {
-                            size: 11
-                          }
-                        }
-                      }
-                    }
-                  }}
-                />
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={skillsData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {skillsData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(0,0,0,0.8)', 
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '8px',
+                        color: 'white'
+                      }} 
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
